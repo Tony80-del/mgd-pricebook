@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MGD Price Book — Quotation System</title>
+<title>Material Book — Quotation System</title>
 <style>
 :root{
  --bg1:#05080d;--bg2:#0f1620;--card:#0f1620;--cardh:#151e2a;--card2:#101c2b;
@@ -117,7 +117,7 @@ table.pb tr:hover td{background:rgba(96,165,250,.05)}
       <div class="brandrow">
         <div class="blogo">🔖</div>
         <div>
-          <h1>MGD <span>PRICE BOOK</span></h1>
+          <h1>MATERIAL <span>BOOK</span></h1>
           <div class="sub">Quotation System · Construction Material price library</div>
         </div>
       </div>
@@ -141,7 +141,7 @@ table.pb tr:hover td{background:rgba(96,165,250,.05)}
 
 <div class="toast" id="toast"></div>
 <div class="bar">
-  <span id="barL">MGD Price Book</span>
+  <span id="barL">Material Book</span>
   <span id="barR"></span>
 </div>
 <input type="file" id="fimp" accept=".json,application/json" style="display:none" onchange="importJSON(this)">
@@ -265,7 +265,7 @@ function render(){
   var s=stats();
   document.getElementById('stats').innerHTML=
     st('Main contents',s.mains)+st('Material items',s.items)+st('Price entries',s.opts)+st('Suppliers / brands',s.sup)+st('Last saved',db().savedAt||'—');
-  document.getElementById('barL').textContent='MGD Price Book · '+s.mains+' mains · '+s.items+' items · '+s.opts+' prices';
+  document.getElementById('barL').textContent='Material Book · '+s.mains+' mains · '+s.items+' items · '+s.opts+' prices';
   document.getElementById('barR').textContent='Storage: '+(FB.on?'Firestore + local':'local (Firestore ready)');
 }
 function st(k,v){return '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}

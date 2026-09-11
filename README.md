@@ -1,4 +1,4 @@
-# MGD Price Book — Quotation System
+# Material Book — Quotation System
 
 Construction-material **price library / quotation system** for MGD (main contractor of factory construction).
 New, standalone system — **independent from the BMS**.
