@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MGD Price Book — Quotation System</title>
+<style>
+:root{
+ --bg1:#05080d;--bg2:#0f1620;--card:#0f1620;--cardh:#151e2a;--card2:#101c2b;
+ --blue:#60a5fa;--blue2:#2563eb;--cyan:#38bdf8;--text1:#e8f4ff;--text2:#8ea6c0;
+ --muted:#415e85;--border:#243244;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+ --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(520px 380px at 18% 0%,rgba(96,165,250,.24),transparent 62%),
+ radial-gradient(520px 380px at 92% 12%,rgba(56,189,248,.14),transparent 62%),
+ linear-gradient(160deg,#05080d,#0f1620);color:var(--text1);
+ font-family:"Segoe UI","Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;min-height:100vh}
+.wrap{max-width:1420px;margin:0 auto;padding:16px 14px 84px}
+
+/* ---------- header ---------- */
+.top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start;margin-bottom:16px}
+.brandrow{display:flex;align-items:center;gap:11px}
+.blogo{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;
+ background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.5);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+.brandrow h1{margin:0;font-size:19px;font-weight:800;letter-spacing:.2px}
+.brandrow h1 span{color:var(--blue)}
+.brandrow .sub{font-size:11px;color:var(--text2);margin-top:3px}
+.acts{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--card2);color:var(--text1);border:1px solid var(--border);padding:8px 12px;font-size:11.5px;font-weight:700;
+ font-family:inherit;cursor:pointer;transition:.15s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.pri{background:linear-gradient(135deg,#60a5fa,#2563eb);border-color:transparent;color:#04121f}
+.btn.dan:hover{border-color:var(--red);color:var(--red)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+.srch{background:var(--card2);border:1px solid var(--border);color:var(--text1);padding:8px 12px;font-size:11.5px;font-family:inherit;
+ outline:none;min-width:230px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+.srch:focus{border-color:var(--blue);box-shadow:0 0 14px rgba(96,165,250,.3)}
+
+/* ---------- main page : columns ---------- */
+.cols{display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:8px}
+.col{flex:0 0 268px;min-width:268px}
+.mcard{background:linear-gradient(160deg,#12202f,#0f1620);border:1px solid var(--border);border-left:4px solid var(--blue);
+ padding:14px;text-align:center;margin-bottom:10px;position:relative;
+ clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.mcard .ic{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 8px;
+ background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.5);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+.mcard .nm{font-size:15px;font-weight:800;letter-spacing:.3px}
+.dcard{display:flex;align-items:center;gap:8px;background:linear-gradient(160deg,#101c2b,#0e1622);border:1px solid var(--border);
+ border-left:4px solid var(--blue);padding:9px 11px;margin-bottom:7px;cursor:pointer;transition:.14s;font-size:12.5px;font-weight:600;
+ clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.dcard:hover{background:linear-gradient(160deg,#16283c,#101c2b);border-color:var(--blue);color:#cfe6ff}
+.dcard .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcard .cnt{font-family:var(--mono);font-size:10px;color:var(--text2)}
+.addrow{display:flex;align-items:center;justify-content:center;gap:6px;border:1px dashed var(--muted);color:var(--text2);
+ padding:8px;cursor:pointer;font-size:11px;font-weight:700;margin-bottom:7px;
+ clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+.addrow:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ---------- detail page ---------- */
+.crumb{font-size:11px;color:var(--text2);margin-bottom:6px}
+.crumb a{color:var(--blue);cursor:pointer;text-decoration:none}
+.phead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:12px}
+.phead h2{margin:0;font-size:19px;font-weight:800}
+.phead .hm{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.pchip{font-family:var(--mono);font-size:10px;font-weight:800;padding:3px 10px;border:1px solid rgba(96,165,250,.45);
+ background:rgba(96,165,250,.12);color:#9ecbff}
+.panel{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--blue);overflow:hidden;
+ clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+.panel .ph{padding:10px 13px;background:var(--cardh);border-bottom:1px solid var(--border);font-size:10.5px;font-weight:800;
+ letter-spacing:.5px;text-transform:uppercase;color:var(--text2)}
+.scroll{overflow:auto}
+table.pb{width:100%;border-collapse:collapse;font-size:12px;min-width:1060px}
+table.pb th{background:var(--cardh);color:#8fb4e8;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.4px;
+ font-weight:800;padding:8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
+table.pb td{padding:4px 6px;border-bottom:1px solid rgba(36,50,68,.85);white-space:nowrap}
+table.pb tr:hover td{background:rgba(96,165,250,.05)}
+.pin{width:100%;background:transparent;color:var(--text1);border:1px solid transparent;border-bottom:1px dashed var(--muted);
+ padding:5px 6px;font-size:11.5px;font-family:var(--mono);outline:none;min-width:66px}
+.pin:hover{background:rgba(96,165,250,.07)}
+.pin:focus{background:rgba(96,165,250,.12);border-color:var(--blue);border-bottom-style:solid}
+.pin.num{text-align:right;font-weight:700}
+.pin.date{min-width:120px;color-scheme:dark}
+.x{color:var(--muted);cursor:pointer;font-size:12px;padding:0 5px}
+.x:hover{color:var(--red)}
+.pbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:9px 13px;border-top:1px solid var(--border);
+ background:var(--cardh);font-family:var(--mono);font-size:10.5px;color:var(--text2)}
+.empty{padding:22px;text-align:center;color:var(--text2)}
+
+/* ---------- misc ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card2);border:1px solid var(--border);padding:10px 12px;border-left:3px solid var(--blue);
+ clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+.stat .k{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);font-weight:800}
+.stat .v{font-family:var(--mono);font-size:17px;font-weight:800;margin-top:3px}
+.toast{position:fixed;right:18px;bottom:44px;background:linear-gradient(135deg,#60a5fa,#2563eb);color:#04121f;font-weight:800;
+ padding:10px 16px;font-size:12px;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:99;
+ clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+.toast.on{opacity:1;transform:none}
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(5,8,13,.94);border-top:1px solid var(--border);
+ padding:7px 16px;font-family:var(--mono);font-size:10.5px;color:var(--text2);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.view{display:none}.view.on{display:block}
+@media print{
+ body{background:#fff;color:#000}.top .acts,.bar,.toast,.addrow{display:none}
+ .panel{border:1px solid #999;clip-path:none}.pin{border:none;color:#000}
+ table.pb th{background:#eee;color:#000}table.pb td{color:#000}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== MAIN ===== -->
+  <div class="view on" id="vMain">
+    <div class="top">
+      <div class="brandrow">
+        <div class="blogo">🔖</div>
+        <div>
+          <h1>MGD <span>PRICE BOOK</span></h1>
+          <div class="sub">Quotation System · Construction Material price library</div>
+        </div>
+      </div>
+      <div class="acts">
+        <input class="srch" id="q" placeholder="🔍 Search main / item / brand / grade / plant…" oninput="render()">
+        <button class="btn" onclick="newMain()">＋ Main content</button>
+        <button class="btn" onclick="exportAll()">⤓ Export Excel</button>
+        <button class="btn" onclick="document.getElementById('fimp').click()">⤒ Import JSON</button>
+        <button class="btn" onclick="exportJSON()">⤓ Backup JSON</button>
+        <button class="btn pri" onclick="save()">💾 Save</button>
+        <button class="btn dan" onclick="resetAll()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="cols" id="cols"></div>
+  </div>
+
+  <!-- ===== ITEM DETAIL ===== -->
+  <div class="view" id="vItem"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="bar">
+  <span id="barL">MGD Price Book</span>
+  <span id="barR"></span>
+</div>
+<input type="file" id="fimp" accept=".json,application/json" style="display:none" onchange="importJSON(this)">
+
+<script>
+/* =======================================================================
+   MGD PRICE BOOK — 单文件应用
+   存储：localStorage（默认）＋ 可选 Firestore（在 FB 里填配置即自动云同步）
+   ======================================================================= */
+var LS_KEY='mgd_pricebook_v1';
+
+/* ---- 可选：Firestore 云同步（填好后把 on 改成 true） ---- */
+var FB={on:false,projectId:'',apiKey:'',doc:'pricebook/master'};
+
+var DEFAULT={savedAt:'—',mains:[
+ {id:'m-civil',icon:'🏗️',name:'Civil Work',items:[
+  {id:'i-ybar',name:'Y Bar (Reinforcement)',unit:'kg',opts:[
+   {brand:'Hoa Phat',spec:'CB300-V',size:'D10–D32',loc:'—',price:13850,date:'2026-08-25',note:''},
+   {brand:'Hoa Sen',spec:'CB300-V',size:'D10–D32',loc:'—',price:13950,date:'2026-08-25',note:''},
+   {brand:'Pomina',spec:'CB400-V',size:'D10–D32',loc:'—',price:14500,date:'2026-08-25',note:''},
+   {brand:'VAS (Thai Nguyen)',spec:'CB300-V',size:'D10–D32',loc:'—',price:13680,date:'2026-08-20',note:'nhà máy nghỉ hè'}]},
+  {id:'i-net',name:'Netting (lưới thép / BRC)',unit:'m2',opts:[
+   {brand:'Hoa Phat',spec:'BRC A142',size:'4.0mm · 150x150',loc:'—',price:32500,date:'2026-08-25',note:''},
+   {brand:'Vinacomin',spec:'BRC A142',size:'4.0mm · 150x150',loc:'—',price:33800,date:'2026-08-25',note:''},
+   {brand:'Local',spec:'Welded mesh',size:'3.0mm · 100x100',loc:'—',price:26000,date:'2026-08-20',note:'floor slab'}]},
+  {id:'i-conc',name:'Concrete (Ready-mix)',unit:'m3',opts:[
+   {brand:'Holcim',spec:'M150 (B12.5)',size:'Slump 12±2',loc:'Plant: Nhơn Trạch',price:1180000,date:'2026-08-25',note:'lean concrete'},
+   {brand:'Holcim',spec:'M200 (B15)',size:'Slump 12±2',loc:'Plant: Nhơn Trạch',price:1250000,date:'2026-08-25',note:''},
+   {brand:'INSEE',spec:'M250 (B20)',size:'Slump 12±2',loc:'Plant: Long Thành',price:1320000,date:'2026-08-25',note:''},
+   {brand:'INSEE',spec:'M300 (B25)',size:'Slump 12±2',loc:'Plant: Long Thành',price:1400000,date:'2026-08-25',note:'phổ biến'},
+   {brand:'Bê tông 620',spec:'M350 (B30)',size:'Slump 14±2',loc:'Plant: Dĩ An',price:1480000,date:'2026-08-25',note:''},
+   {brand:'Bê tông 620',spec:'M400 (B35)',size:'Slump 14±2',loc:'Plant: Dĩ An',price:1560000,date:'2026-08-25',note:'+ phụ gia chống thấm'},
+   {brand:'Hà Thanh',spec:'M300 (B25)',size:'Slump 12±2',loc:'Plant: VSIP III',price:1385000,date:'2026-08-20',note:'gần công trường'}]},
+  {id:'i-form',name:'Formwork (Film faced plywood)',unit:'m2',opts:[
+   {brand:'Kum Yang',spec:'Film faced',size:'THK 18 mm',loc:'—',price:295000,date:'2026-08-25',note:'re-use 5–6 times'},
+   {brand:'Duy Loi',spec:'Film faced',size:'THK 15 mm',loc:'—',price:235000,date:'2026-08-25',note:''},
+   {brand:'Local',spec:'Film faced',size:'THK 12 mm',loc:'—',price:185000,date:'2026-08-20',note:'foundation'}]},
+  {id:'i-lab1',name:'Labour fee (Civil)',unit:'m2',opts:[
+   {brand:'—',spec:'Formwork install / strip',size:'—',loc:'—',price:65000,date:'2026-08-25',note:'theo m² ván khuôn'},
+   {brand:'—',spec:'Rebar cut & bend',size:'—',loc:'—',price:1600,date:'2026-08-25',note:'theo kg'},
+   {brand:'—',spec:'Concrete pour + finish',size:'—',loc:'—',price:180000,date:'2026-08-25',note:'theo m³'}]},
+  {id:'i-etc',name:'ETC (add your own)',unit:'—',opts:[
+   {brand:'—',spec:'Brick / Masonry',size:'100mm',loc:'—',price:0,date:'',note:''}]}
+ ]},
+ {id:'m-steel',icon:'🔩',name:'Steel Structure',items:[
+  {id:'i-plate',name:'Steel Plate',unit:'kg',opts:[
+   {brand:'Posco',spec:'Q355 / S355JR',size:'THK 6 mm',loc:'Posco VN',price:19800,date:'2026-08-25',note:''},
+   {brand:'Posco',spec:'Q355 / S355JR',size:'THK 10 mm',loc:'Posco VN',price:19300,date:'2026-08-25',note:''},
+   {brand:'Formosa',spec:'ASTM A36',size:'THK 10 mm',loc:'Formosa Hà Tĩnh',price:17200,date:'2026-08-25',note:''},
+   {brand:'Hoa Phat',spec:'JIS SS400',size:'THK 12 mm',loc:'Hoa Phat',price:16900,date:'2026-08-25',note:''},
+   {brand:'Nippon Steel',spec:'JIS SN400B',size:'THK 16 mm',loc:'Nippon VN',price:21500,date:'2026-08-20',note:'main frame'}]},
+  {id:'i-hot',name:'Hot Roll (H / I / C / Angle)',unit:'kg',opts:[
+   {brand:'Hoa Phat',spec:'SS400',size:'H400x200',loc:'Hoa Phat',price:16800,date:'2026-08-25',note:''},
+   {brand:'Formosa',spec:'A35',size:'H400x200',loc:'Formosa',price:17100,date:'2026-08-25',note:''},
+   {brand:'Nippon Steel',spec:'SN400B',size:'H400x200',loc:'Nippon VN',price:21800,date:'2026-08-20',note:''},
+   {brand:'Posco',spec:'S355JR',size:'I300x150',loc:'Posco VN',price:19600,date:'2026-08-20',note:''}]},
+  {id:'i-fab',name:'Labour — Build up fee',unit:'kg',opts:[
+   {brand:'—',spec:'Fabrication + erect',size:'≤ 10 mm',loc:'Subcontractor M',price:3800,date:'2026-08-25',note:'gia công + dựng'},
+   {brand:'—',spec:'Fabrication + erect',size:'> 10 mm',loc:'Subcontractor M',price:4200,date:'2026-08-25',note:''},
+   {brand:'—',spec:'Sandblasting',size:'Sa 2.0',loc:'Subcontractor M',price:2200,date:'2026-08-25',note:'theo m²'},
+   {brand:'—',spec:'Sandblasting',size:'Sa 2.5',loc:'Subcontractor M',price:2800,date:'2026-08-25',note:'theo m²'}]},
+  {id:'i-paint',name:'Painting cost',unit:'m2',opts:[
+   {brand:'Jotun',spec:'Under coating (Primer)',size:'per layer',loc:'Jotun VN',price:38000,date:'2026-08-25',note:'1 lớp'},
+   {brand:'Jotun',spec:'Finishing (Top coat)',size:'per layer',loc:'Jotun VN',price:44000,date:'2026-08-25',note:'1 lớp'},
+   {brand:'AkzoNobel',spec:'Under coating',size:'per layer',loc:'Akzo VN',price:41000,date:'2026-08-25',note:''},
+   {brand:'Hempel',spec:'Finishing',size:'per layer',loc:'Hempel VN',price:42500,date:'2026-08-20',note:''},
+   {brand:'KCC',spec:'Primer + Top',size:'per layer',loc:'KCC VN',price:36000,date:'2026-08-20',note:'economy'}]}
+ ]},
+ {id:'m-plumb',icon:'🚿',name:'Plumbing Work',items:[
+  {id:'i-waste',name:'Wastewater (thoát nước thải)',unit:'m',opts:[
+   {brand:'Tien Phong',spec:'uPVC D110',size:'3.2 mm',loc:'Tien Phong',price:128000,date:'2026-08-25',note:''},
+   {brand:'Binh Minh',spec:'uPVC D90',size:'3.0 mm',loc:'Binh Minh',price:96000,date:'2026-08-25',note:''},
+   {brand:'Hoa Sen',spec:'HDPE D110',size:'PN10',loc:'Hoa Sen',price:165000,date:'2026-08-20',note:''}]},
+  {id:'i-inc',name:'Incoming water (cấp nước)',unit:'m',opts:[
+   {brand:'Tien Phong',spec:'PPR D63',size:'PN20',loc:'Tien Phong',price:142000,date:'2026-08-25',note:''},
+   {brand:'Binh Minh',spec:'uPVC D90',size:'PN10',loc:'Binh Minh',price:105000,date:'2026-08-25',note:''}]}
+ ]},
+ {id:'m-elec',icon:'⚡',name:'Electrical',items:[
+  {id:'i-cable',name:'Cable',unit:'m',opts:[
+   {brand:'Cadivi',spec:'CV 1C x 2.5 mm²',size:'0.6/1kV',loc:'Cadivi',price:14500,date:'2026-08-25',note:''},
+   {brand:'Cadivi',spec:'CV 1C x 4.0 mm²',size:'0.6/1kV',loc:'Cadivi',price:21800,date:'2026-08-25',note:''},
+   {brand:'Thịnh Phát',spec:'Cu/PVC 3C x 4.0 mm²',size:'0.6/1kV',loc:'Thịnh Phát',price:64500,date:'2026-08-25',note:''},
+   {brand:'Taya',spec:'CVV 2C x 1.5 mm²',size:'0.6/1kV',loc:'Taya VN',price:19800,date:'2026-08-20',note:''},
+   {brand:'LS Vina',spec:'Cable tray + accessories',size:'—',loc:'LS Vina',price:0,date:'',note:''}]}
+ ]}
+]};
+
+var DB=null,curId=null,q='';
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function db(){if(DB)return DB;try{var s=localStorage.getItem(LS_KEY);if(s){DB=JSON.parse(s);return DB}}catch(e){}DB=clone(DEFAULT);return DB}
+function today(){return new Date().toISOString().slice(0,10)}
+function nowStr(){var d=new Date();return d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function num(n){return (n==null||n==='')?'':Number(n).toLocaleString('en-US')}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('on')},1900)}
+function findItem(id){var r=null;db().mains.forEach(function(m){m.items.forEach(function(it){if(it.id===id)r={m:m,it:it}})});return r}
+function stats(){var it=0,o=0,sup={};db().mains.forEach(function(m){m.items.forEach(function(x){it++;(x.opts||[]).forEach(function(p){o++;if(p.brand&&p.brand!=='—')sup[p.brand]=1})})});
+ return {mains:db().mains.length,items:it,opts:o,sup:Object.keys(sup).length}}
+function view(v){document.getElementById('vMain').classList.toggle('on',v==='main');document.getElementById('vItem').classList.toggle('on',v==='item');window.scrollTo(0,0)}
+
+/* ---------------- render ---------------- */
+function render(){
+  q=(document.getElementById('q').value||'').toLowerCase();
+  var h='';
+  db().mains.forEach(function(m){
+    var items=m.items.filter(function(it){return hit(it,q,m)});
+    if(q&&!items.length)return;
+    h+='<div class="col">';
+    h+='<div class="mcard"><div class="ic">'+m.icon+'</div><div class="nm">'+esc(m.name)+'</div></div>';
+    items.forEach(function(it){
+      var rows=it.opts||[];
+      var ps=rows.map(function(o){return +o.price||0}).filter(function(x){return x>0});
+      var mn=ps.length?Math.min.apply(null,ps):null,mx=ps.length?Math.max.apply(null,ps):null;
+      h+='<div class="dcard" onclick="openItem(\''+it.id+'\')"><span class="nm">'+esc(it.name)+'</span>'
+        +'<span class="cnt">'+(mn!=null?num(mn)+(mx!==mn?'–'+num(mx):''):'—')+'</span><span style="color:var(--blue)">›</span></div>';
+    });
+    h+='<div class="addrow" onclick="newItem(\''+m.id+'\')">＋ New item</div>';
+    h+='</div>';
+  });
+  document.getElementById('cols').innerHTML=h||'<div class="empty">No match for “'+esc(q)+'”</div>';
+  var s=stats();
+  document.getElementById('stats').innerHTML=
+    st('Main contents',s.mains)+st('Material items',s.items)+st('Price entries',s.opts)+st('Suppliers / brands',s.sup)+st('Last saved',db().savedAt||'—');
+  document.getElementById('barL').textContent='MGD Price Book · '+s.mains+' mains · '+s.items+' items · '+s.opts+' prices';
+  document.getElementById('barR').textContent='Storage: '+(FB.on?'Firestore + local':'local (Firestore ready)');
+}
+function st(k,v){return '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'}
+function hit(it,q,m){ if(!q)return true;
+  if((it.name||'').toLowerCase().indexOf(q)>=0)return true;
+  if((m.name||'').toLowerCase().indexOf(q)>=0)return true;
+  return (it.opts||[]).some(function(o){return ((o.brand||'')+' '+(o.spec||'')+' '+(o.size||'')+' '+(o.loc||'')).toLowerCase().indexOf(q)>=0});
+}
+
+/* ---------------- item detail page ---------------- */
+function openItem(id){
+  curId=id;var f=findItem(id);if(!f){toast('Item not found');return}
+  var m=f.m,it=f.it,rows=it.opts||[];
+  var ps=rows.map(function(o){return +o.price||0}).filter(function(x){return x>0});
+  var mn=ps.length?Math.min.apply(null,ps):null,mx=ps.length?Math.max.apply(null,ps):null;
+  var h='';
+  h+='<div class="top"><div><div class="crumb"><a onclick="goMain()">‹ Back to main page</a> &nbsp;/&nbsp; '+m.icon+' '+esc(m.name)+'</div>'
+   +'<h2>📄 '+esc(it.name)+'</h2><div class="hm">'
+   +'<span class="pchip">UNIT '+esc(it.unit||'—')+'</span><span class="pchip">'+rows.length+' ENTRIES</span>'
+   +(mn!=null?'<span class="pchip">'+num(mn)+(mx!==mn?' – '+num(mx):'')+' '+esc(it.unit||'')+'</span>':'')+'</div></div>'
+   +'<div class="acts"><button class="btn" onclick="goMain()">‹ Back</button>'
+   +'<button class="btn pri" onclick="addPrice()">＋ Add price</button>'
+   +'<button class="btn" onclick="dupPrice()">⧉ Duplicate</button>'
+   +'<button class="btn" onclick="renameItem()">✎ Rename</button>'
+   +'<button class="btn" onclick="exportItem()">⤓ Export Excel</button>'
+   +'<button class="btn" onclick="window.print()">🖨 Print / PDF</button>'
+   +'<button class="btn dan" onclick="delItem()">🗑 Delete item</button></div></div>';
+  h+='<div class="panel"><div class="ph">All prices — brand / grade / THK / plant</div><div class="scroll"><table class="pb"><thead><tr>'
+   +'<th style="width:14%">Brand 品牌</th><th style="width:16%">Grade / Spec 规格</th><th style="width:11%">Size / THK</th>'
+   +'<th style="width:15%">Plant / Supplier</th><th style="width:12%;text-align:right">Unit price 单价</th><th style="width:5%">Unit</th>'
+   +'<th style="width:10%">Updated</th><th style="width:14%">Note 备注</th><th style="width:3%"></th></tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="9" class="empty">No price yet — click ＋ Add price</td></tr>';
+  rows.forEach(function(r,i){
+    h+='<tr>'
+     +'<td><input class="pin" value="'+esc(r.brand)+'" onchange="set('+i+',\'brand\',this.value)"></td>'
+     +'<td><input class="pin" value="'+esc(r.spec)+'" onchange="set('+i+',\'spec\',this.value)"></td>'
+     +'<td><input class="pin" value="'+esc(r.size)+'" onchange="set('+i+',\'size\',this.value)"></td>'
+     +'<td><input class="pin" value="'+esc(r.loc)+'" onchange="set('+i+',\'loc\',this.value)"></td>'
+     +'<td><input class="pin num" value="'+(r.price||0)+'" onchange="set('+i+',\'price\',this.value)"></td>'
+     +'<td><span class="pchip">'+esc(it.unit||'—')+'</span></td>'
+     +'<td><input class="pin date" type="date" value="'+(r.date||'')+'" onchange="set('+i+',\'date\',this.value)"></td>'
+     +'<td><input class="pin" value="'+esc(r.note)+'" onchange="set('+i+',\'note\',this.value)"></td>'
+     +'<td><span class="x" onclick="delPrice('+i+')">✕</span></td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div class="pbar"><span>ROWS '+rows.length+'</span><span>MIN '+(mn!=null?num(mn):'—')+' · MAX '+(mx!=null?num(mx):'—')+' '+esc(it.unit||'')+'</span>'
+   +'<span style="margin-left:auto">click a cell to edit → 💾 Save</span></div></div>';
+  h+='<div style="margin-top:12px"><button class="btn" onclick="goMain()">‹ Back to main page</button></div>';
+  document.getElementById('vItem').innerHTML=h;
+  document.getElementById('barL').textContent='📄 '+it.name+' — '+m.name;
+  document.getElementById('barR').textContent='Rows '+rows.length+' · '+esc(it.unit||'—');
+  view('item');
+}
+function goMain(){curId=null;view('main');render()}
+
+/* ---------------- edits ---------------- */
+function set(i,k,v){var f=findItem(curId);if(!f)return;
+  if(k==='price'){v=String(v).replace(/[^0-9.\-]/g,'');v=v===''?0:parseFloat(v)}
+  f.it.opts[i][k]=v;openItem(curId);render();toast('✏️ Updated — click 💾 Save')}
+function delPrice(i){var f=findItem(curId);if(!f)return;f.it.opts.splice(i,1);openItem(curId);render();toast('🗑 Row removed')}
+function addPrice(){var f=findItem(curId);if(!f)return;f.it.opts=f.it.opts||[];
+  f.it.opts.push({brand:'',spec:'',size:'',loc:'',price:0,date:today(),note:''});openItem(curId);render();toast('＋ New price row')}
+function dupPrice(){var f=findItem(curId);if(!f||!f.it.opts.length)return;
+  f.it.opts.push(clone(f.it.opts[f.it.opts.length-1]));openItem(curId);render();toast('⧉ Duplicated')}
+function renameItem(){var f=findItem(curId);if(!f)return;var n=prompt('Item name / 材料名称:',f.it.name);if(n&&n.trim()){f.it.name=n.trim();openItem(curId);render();toast('✎ Renamed')}}
+function delItem(){var f=findItem(curId);if(!f)return;if(!confirm('Delete item “'+f.it.name+'” and all its prices?'))return;
+  f.m.items=f.m.items.filter(function(x){return x.id!==curId});goMain();toast('🗑 Item deleted')}
+function newItem(mid){var m=db().mains.filter(function(x){return x.id===mid})[0];if(!m)return;
+  var n=prompt('New item name / 新材料项 (e.g. Brick, Tiling, Waterproofing, Doors, Roofing):');if(!n||!n.trim())return;
+  var u=prompt('Unit (kg / m2 / m3 / m / set / lot):','m2')||'—';
+  m.items.push({id:'i'+Date.now(),name:n.trim(),unit:u,opts:[{brand:'',spec:'',size:'',loc:'',price:0,date:today(),note:''}]});
+  render();toast('＋ Item added — click it to add prices')}
+function newMain(){var n=prompt('New main content / 新主内容 (e.g. Roofing, HVAC, Fire Protection):');if(!n||!n.trim())return;
+  db().mains.push({id:'m'+Date.now(),icon:'🧱',name:n.trim(),items:[]});render();toast('＋ Main content added')}
+
+/* ---------------- persistence ---------------- */
+function save(){db().savedAt=nowStr();
+  try{localStorage.setItem(LS_KEY,JSON.stringify(db()))}catch(e){}
+  if(FB.on)fbPush();
+  render();if(curId)openItem(curId);
+  toast(FB.on?'💾 Saved to Firestore':'💾 Saved to local storage')}
+function resetAll(){if(!confirm('Reset to the sample price book? (your local changes will be lost)'))return;
+  localStorage.removeItem(LS_KEY);DB=clone(DEFAULT);curId=null;view('main');render();toast('↺ Reset done')}
+
+/* ---------------- export / import ---------------- */
+function download(name,text,mime){var b=new Blob([text],{type:mime||'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},400)}
+function csvEsc(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function rowsCSV(m,it){var out=[];(it.opts||[]).forEach(function(o){
+  out.push([m.name,it.name,it.unit||'',o.brand||'',o.spec||'',o.size||'',o.loc||'',o.price||0,o.date||'',o.note||''].map(csvEsc).join(','))});return out}
+function exportItem(){var f=findItem(curId);if(!f)return;
+  var head='Main content,Item,Unit,Brand,Grade/Spec,Size/THK,Plant/Supplier,Unit price,Updated,Note\n';
+  var body=rowsCSV(f.m,f.it).join('\n');
+  download('PriceBook_'+f.it.name.replace(/[^\w\u4e00-\u9fa5]+/g,'_')+'.csv','\ufeff'+head+body,'text/csv;charset=utf-8');
+  toast('⤓ Exported CSV (open in Excel)')}
+function exportAll(){var head='Main content,Item,Unit,Brand,Grade/Spec,Size/THK,Plant/Supplier,Unit price,Updated,Note\n',out=[];
+  db().mains.forEach(function(m){m.items.forEach(function(it){out=out.concat(rowsCSV(m,it))})});
+  download('MGD_PriceBook_All.csv','\ufeff'+head+out.join('\n'),'text/csv;charset=utf-8');
+  toast('⤓ Exported all prices')}
+function exportJSON(){download('MGD_PriceBook_backup_'+today()+'.json',JSON.stringify(db(),null,1),'application/json');toast('⤓ Backup JSON downloaded')}
+function importJSON(inp){var f=inp.files&&inp.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var o=JSON.parse(r.result);if(!o||!o.mains)throw 0;DB=o;save();toast('⤒ Imported')}catch(e){alert('Invalid backup file')}};
+  r.readAsText(f);inp.value=''}
+
+/* ---------------- optional Firestore sync (REST) ---------------- */
+function fsVal(v){ if(v==null)return{nullValue:null};
+  if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+  if(typeof v==='boolean')return{booleanValue:v};
+  if(Array.isArray(v))return{arrayValue:{values:v.map(fsVal)}};
+  if(typeof v==='object'){var f={};Object.keys(v).forEach(function(k){f[k]=fsVal(v[k])});return{mapValue:{fields:f}}}
+  return{stringValue:String(v)} }
+function fsOut(v){ if(!v)return null;
+  if(v.stringValue!==undefined)return v.stringValue;
+  if(v.integerValue!==undefined)return parseInt(v.integerValue,10);
+  if(v.doubleValue!==undefined)return v.doubleValue;
+  if(v.booleanValue!==undefined)return v.booleanValue;
+  if(v.nullValue!==undefined)return null;
+  if(v.arrayValue)return (v.arrayValue.values||[]).map(fsOut);
+  if(v.mapValue){var o={};var f=v.mapValue.fields||{};Object.keys(f).forEach(function(k){o[k]=fsOut(f[k])});return o}
+  return null }
+function fbURL(){return 'https://firestore.googleapis.com/v1/projects/'+FB.projectId+'/databases/(default)/documents/'+FB.doc+'?key='+FB.apiKey}
+function fbPush(){ if(!FB.on)return;
+  fetch(fbURL(),{method:'PATCH',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({fields:{payload:fsVal(db()),savedAt:{stringValue:db().savedAt}}})})
+  .catch(function(){toast('⚠️ Firestore push failed (offline?)')}) }
+function fbPull(){ if(!FB.on)return;
+  fetch(fbURL()).then(function(r){return r.json()}).then(function(j){
+    var p=j&&j.fields&&j.fields.payload?fsOut(j.fields.payload):null;
+    if(p&&p.mains){DB=p;render();toast('☁️ Loaded from Firestore')}}).catch(function(){}) }
+
+/* ---------------- boot ---------------- */
+render();fbPull();
+</script>
+</body>
+</html>
